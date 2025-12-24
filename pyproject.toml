@@ -1,0 +1,81 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dpp-pdc"
+version = "1.0.0"
+description = "DPP-PDC: Determinantal Point Process for Phase Diagram Construction"
+readme = "README.md"
+license = {text = "MIT"}
+authors = [
+    {name = "Your Name", email = "your.email@example.com"}
+]
+keywords = [
+    "active-learning",
+    "phase-diagram",
+    "materials-science",
+    "determinantal-point-process",
+    "bayesian-optimization"
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Chemistry",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+requires-python = ">=3.12"
+dependencies = [
+    "numpy>=1.26.4",
+    "pandas>=2.2.3",
+    "matplotlib>=3.10.0",
+    "scikit-learn>=1.6.1",
+    "scipy>=1.12.0",
+    "pymc>=5.20.1",
+    "arviz>=0.17.1",
+    "pytensor>=2.27.1",
+    "seaborn>=0.13.2",
+    "shapely>=2.1.0",
+    "python-ternary>=1.0.8",
+    "h5py>=3.12.1",
+    "joblib>=1.4.2",
+    "tomli>=2.0.1;python_version<'3.11'",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "black>=23.0.0",
+    "ruff>=0.1.0",
+    "mypy>=1.0.0",
+]
+
+[project.scripts]
+dpp-pdc = "dpp_pdc.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/yourusername/dpp-pdc"
+Documentation = "https://github.com/yourusername/dpp-pdc#readme"
+Repository = "https://github.com/yourusername/dpp-pdc"
+Issues = "https://github.com/yourusername/dpp-pdc/issues"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["dpp_pdc*"]
+
+[tool.black]
+line-length = 100
+target-version = ['py312']
+
+[tool.ruff]
+line-length = 100
+select = ["E", "F", "W", "I", "N", "D", "UP"]
+ignore = ["D100", "D104"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]

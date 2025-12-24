@@ -1,0 +1,56 @@
+# DPP-PDC Configuration File
+# ===========================
+# This file controls all experiment parameters.
+# Copy this file and modify as needed for your experiments.
+
+[experiment]
+# Temperature conditions to evaluate
+# Available: 500K, 550K, 600K, 650K, 700K, 750K, 800K, 850K, 900K, 950K, 1000K, 1050K, 1100K
+temperatures = ["650K", "850K", "1050K"]
+
+# Algorithms to compare
+# - RS: Random Sampling (baseline)
+# - PDC: Phase Diagram Construction with uncertainty sampling
+# - K-Medoids: K-medoids clustering on top uncertain points
+# - DPP-PDC: Our proposed method with Bayesian DPP
+algorithms = ["RS", "PDC", "K-Medoids", "DPP-PDC"]
+
+# Batch sizes for each sampling iteration
+batch_sizes = [5, 8, 10, 12]
+
+# Number of independent runs per configuration (for statistical analysis)
+n_runs = 10
+
+# Number of initial random samples before active learning begins
+n_initial_sampling = 10
+
+# Maximum iterations per experiment
+# Set to a number to limit iterations, or comment out for auto-calculation
+# max_iterations = 20
+
+[data]
+# Template for dataset file paths
+# Use {temperature} as placeholder for temperature value
+file_path_template = "datasets/Cu-Mg_Zn_{temperature}.csv"
+
+[output]
+# Directory for saving results (created automatically)
+output_dir = "results"
+
+# Save visualization plots
+save_plots = true
+
+# Enable verbose output during experiments
+verbose = false
+
+[bayesian]
+# Prior parameters for log noise variance
+# These control the initial exploration/exploitation balance
+prior_mu = -4.0      # Prior mean (log scale)
+prior_sigma = 4.0    # Prior standard deviation
+
+# MCMC sampling parameters
+mcmc_samples = 1000  # Number of posterior samples
+mcmc_tune = 1000     # Number of tuning steps
+mcmc_chains = 1      # Number of parallel chains
+target_accept = 0.9  # Target acceptance rate for NUTS sampler
