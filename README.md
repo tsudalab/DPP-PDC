@@ -265,7 +265,7 @@ output_dir = "results"
 save_plots = true
 verbose = false
 
-[bayesian]
+[PyMC]
 # Prior parameters for noise variance (log-normal distribution)
 prior_mu = -4.0
 prior_sigma = 4.0
