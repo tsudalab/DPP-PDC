@@ -84,54 +84,150 @@ def compute_random_scores(X_unlabeled):
     return np.ones(n_points) / n_points
 
 
+# =============================================================================
+# K-Medoids Variants
+# =============================================================================
+
 def kmedoids_uncertainty_sampling(
+    X_unlabeled,
+    unlabeled_indices,
+    uncertainty_scores,
+    batch_size,
+    top_percentile=0.2,
+    variant='FPS',
+    random_state=0,
+):
+    """
+    K-Medoids based uncertainty sampling with multiple variants.
+    
+    Args:
+        X_unlabeled: Unlabeled data features
+        unlabeled_indices: Global indices of unlabeled points
+        uncertainty_scores: PDC uncertainty scores
+        batch_size: Number of points to select
+        top_percentile: Fraction of top uncertain points to consider (0.0-1.0)
+        variant: 'FPS' (farthest point sampling) or 'PAM' (original k-medoids)
+        random_state: Random seed for reproducibility
+        
+    Returns:
+        Selected global indices
+    """
+    if variant == 'FPS':
+        return _kmedoids_fps(
+            X_unlabeled, unlabeled_indices, uncertainty_scores,
+            batch_size, top_percentile, random_state
+        )
+    elif variant == 'PAM':
+        return _kmedoids_pam(
+            X_unlabeled, unlabeled_indices, uncertainty_scores,
+            batch_size, top_percentile, random_state
+        )
+    else:
+        raise ValueError(f"Unknown K-Medoids variant: {variant}. Use 'PAM' or 'FPS'.")
+
+
+def _kmedoids_fps(
+    X_unlabeled,
+    unlabeled_indices,
+    uncertainty_scores,
+    batch_size,
+    top_percentile=0.2,
+    random_state=0,
+):
+    """
+    Farthest Point Sampling within top uncertain candidates.
+    
+    Algorithm:
+        1. Select top uncertain points as candidates
+        2. Start with most uncertain point
+        3. Iteratively add point farthest from current selection (max-min diversity)
+    
+    Reference:
+        Gonzalez, T. F. (1985). Clustering to minimize the maximum intercluster distance.
+        Similar to Core-Set approach: Sener & Savarese (2018), ICLR.
+    """
+    unlabeled_indices = np.asarray(unlabeled_indices)
+    uncertainty_scores = np.asarray(uncertainty_scores)
+
+    n_unlabeled = len(unlabeled_indices)
+    if n_unlabeled == 0:
+        return np.array([], dtype=int)
+
+    scores = np.nan_to_num(uncertainty_scores, nan=-np.inf)
+
+    # Select top uncertain candidates
+    n_candidates = max(batch_size, int(n_unlabeled * top_percentile))
+    n_candidates = min(n_candidates, n_unlabeled)
+
+    top_local = np.argsort(scores)[-n_candidates:]
+    X_candidates = X_unlabeled[top_local]
+    scores_candidates = scores[top_local]
+
+    if len(top_local) <= batch_size:
+        return unlabeled_indices[top_local][:batch_size]
+
+    # Compute pairwise distances
+    distances = cdist(X_candidates, X_candidates, metric="euclidean")
+    
+    # Start with most uncertain point
+    selected = [np.argmax(scores_candidates)]
+    
+    # Greedy farthest point selection
+    for _ in range(batch_size - 1):
+        # Compute min distance to current selection for each candidate
+        min_dists = distances[:, selected].min(axis=1)
+        # Exclude already selected
+        min_dists[selected] = -np.inf
+        # Select farthest point
+        next_idx = np.argmax(min_dists)
+        selected.append(next_idx)
+    
+    selected_local = top_local[selected]
+    return unlabeled_indices[selected_local][:batch_size]
+
+
+def _kmedoids_pam(
     X_unlabeled,
     unlabeled_indices,
     uncertainty_scores,
     batch_size,
     top_percentile=0.3,
     random_state=0,
-    strict_top_percentile=True,
 ):
     """
-    Two-step baseline:
-    (1) take top x% most uncertain points
-    (2) run PAM-style k-medoids on the candidate set
+    Original PAM-style K-Medoids on top uncertain candidates.
+    
+    Algorithm:
+        1. Select top uncertain points as candidates
+        2. Run PAM k-medoids clustering
+        3. Return cluster medoids as selected points
     """
     unlabeled_indices = np.asarray(unlabeled_indices)
     uncertainty_scores = np.asarray(uncertainty_scores)
-
-    assert X_unlabeled.shape[0] == len(unlabeled_indices) == len(uncertainty_scores), \
-        "X_unlabeled, unlabeled_indices, and uncertainty_scores must be aligned."
 
     n_unlabeled = len(unlabeled_indices)
     if n_unlabeled == 0:
         return np.array([], dtype=int)
 
-    # treat NaN as very low uncertainty
     scores = np.nan_to_num(uncertainty_scores, nan=-np.inf)
 
-    if strict_top_percentile:
-        n_candidates = max(batch_size, int(n_unlabeled * top_percentile))
-    else:
-        n_candidates = max(batch_size * 2, int(n_unlabeled * top_percentile))
+    n_candidates = max(batch_size, int(n_unlabeled * top_percentile))
     n_candidates = min(n_candidates, n_unlabeled)
 
-    # top uncertain points
     top_local = np.argsort(scores)[-n_candidates:]
     X_candidates = X_unlabeled[top_local]
 
     if len(top_local) <= batch_size:
-        selected_local = top_local
-    else:
-        medoid_in_candidates = _pam_kmedoids_fit(
-            X_candidates,
-            n_clusters=batch_size,
-            max_iter=100,
-            random_state=random_state,
-        )
-        selected_local = top_local[medoid_in_candidates]
+        return unlabeled_indices[top_local][:batch_size]
 
+    medoid_indices = _pam_kmedoids_fit(
+        X_candidates,
+        n_clusters=batch_size,
+        max_iter=100,
+        random_state=random_state,
+    )
+    
+    selected_local = top_local[medoid_indices]
     return unlabeled_indices[selected_local][:batch_size]
 
 
