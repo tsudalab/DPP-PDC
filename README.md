@@ -276,6 +276,7 @@ prior_sigma = 4.0
 # K-Medoids variant: "FPS" (Farthest Point Sampling) or "PAM" (original k-medoids)
 # FPS is recommended for better performance on imbalanced datasets
 variant = "FPS"
+
 # Top percentile of uncertain points for candidate selection (0.0-1.0)
 # Lower values focus on more uncertain points, higher values increase diversity
 top_percentile = 0.2
