@@ -129,6 +129,8 @@ Run active learning experiments.
 | `--max-sampling` | - | Maximum total samples | auto |
 | `--output-dir` | `-o` | Output directory | `results` |
 | `--verbose` | `-v` | Enable verbose output | `False` |
+| `--kmedoids-variant` | - | K-Medoids variant: FPS or PAM | `FPS` |
+| `--kmedoids-top-percentile` | - | Top percentile for candidate selection (0.0-1.0) | `0.2` |
 
 ### `dpp-pdc init-config`
 
@@ -143,7 +145,7 @@ dpp-pdc init-config --output configs/my_config.toml
 |-----------|-------------|
 | **RS** | Random Sampling (baseline) |
 | **PDC** | Phase Diagram Construction using uncertainty sampling |
-| **K-Medoids** | Two-step approach: select top 30% uncertain points, then apply K-Medoids clustering |
+| **K-Medoids** | Two-step approach: select top uncertain points, then apply diversity sampling. Supports FPS (Farthest Point Sampling, default) or PAM variants |
 | **DPP-PDC** | Our method: uncertainty-weighted DPP with Bayesian diversity control |
 
 ## Dataset Format
@@ -269,6 +271,14 @@ verbose = false
 # Prior parameters for noise variance (log-normal distribution)
 prior_mu = -4.0
 prior_sigma = 4.0
+
+[kmedoids]
+# K-Medoids variant: "FPS" (Farthest Point Sampling) or "PAM" (original k-medoids)
+# FPS is recommended for better performance on imbalanced datasets
+variant = "FPS"
+# Top percentile of uncertain points for candidate selection (0.0-1.0)
+# Lower values focus on more uncertain points, higher values increase diversity
+top_percentile = 0.2
 
 # MCMC sampling parameters
 mcmc_samples = 1000
