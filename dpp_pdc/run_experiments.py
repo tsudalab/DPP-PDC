@@ -31,7 +31,8 @@ print = functools.partial(print, flush=True)
 warnings.filterwarnings("ignore")
 
 
-def run_experiment_with_pymc(file_path, temperature, algorithms, batch_sizes, n_runs, phases_nums, result_dir, max_sampling=None):
+def run_experiment_with_pymc(file_path, temperature, algorithms, batch_sizes, n_runs, phases_nums, result_dir, 
+                             max_sampling=None, kmedoids_variant='FPS', kmedoids_top_percentile=0.2):
     """
     Main function to run experiments using improved PyMC Bayesian framework.
     Supports all algorithms.
@@ -45,6 +46,8 @@ def run_experiment_with_pymc(file_path, temperature, algorithms, batch_sizes, n_
         phases_nums: Total number of phases
         result_dir: Directory to save results
         max_sampling: Maximum samplings (None = auto-calculate)
+        kmedoids_variant: K-Medoids variant ('FPS' or 'PAM'), default 'FPS'
+        kmedoids_top_percentile: Top percentile for K-Medoids (0.0-1.0), default 0.2
         
     Returns:
         results: List of experimental results [mean, std, algorithm, batch_size]
@@ -66,6 +69,10 @@ def run_experiment_with_pymc(file_path, temperature, algorithms, batch_sizes, n_
     
     # Pre-generate initial sampling points for each batch size and run
     initial_samples = prepare_initial_samples(X_std, y_encoded, batch_sizes, n_runs, n_initial_sampling)
+    
+    # Print K-Medoids configuration if K-Medoids is in algorithms
+    if 'K-Medoids' in algorithms:
+        print(f"K-Medoids configuration: variant={kmedoids_variant}, top_percentile={kmedoids_top_percentile}")
     
     for batch_size in batch_sizes:
         # Calculate max_iterations from max_sampling
@@ -118,7 +125,9 @@ def run_experiment_with_pymc(file_path, temperature, algorithms, batch_sizes, n_
                         current_max_iterations,
                         batch_size,
                         labeled_indices, 
-                        phases_nums
+                        phases_nums,
+                        kmedoids_variant=kmedoids_variant,
+                        kmedoids_top_percentile=kmedoids_top_percentile
                     )
                     metrics_all_runs.append(metrics_history)
                     
@@ -221,7 +230,8 @@ def process_metrics_history(metrics_all_runs, max_iterations):
     return processed
 
 
-def run_single_temperature_experiment(temperature, file_path_template, algorithms, batch_sizes, n_runs, max_sampling=None):
+def run_single_temperature_experiment(temperature, file_path_template, algorithms, batch_sizes, n_runs, 
+                                      max_sampling=None, kmedoids_variant='FPS', kmedoids_top_percentile=0.2):
     """
     Run experiments for a single temperature condition.
     
@@ -232,6 +242,8 @@ def run_single_temperature_experiment(temperature, file_path_template, algorithm
         batch_sizes: List of batch sizes
         n_runs: Number of runs per configuration
         max_sampling: Maximum samplings (None = auto-calculate)
+        kmedoids_variant: K-Medoids variant ('FPS' or 'PAM'), default 'FPS'
+        kmedoids_top_percentile: Top percentile for K-Medoids (0.0-1.0), default 0.2
         
     Returns:
         Dictionary containing results and metadata
@@ -254,7 +266,8 @@ def run_single_temperature_experiment(temperature, file_path_template, algorithm
 
     # Run experiments
     results, pymc_results, metrics_results = run_experiment_with_pymc(
-        file_path, temperature, algorithms, batch_sizes, n_runs, phases_nums, result_dir, max_sampling
+        file_path, temperature, algorithms, batch_sizes, n_runs, phases_nums, result_dir, max_sampling,
+        kmedoids_variant=kmedoids_variant, kmedoids_top_percentile=kmedoids_top_percentile
     )
     
     # Plot comparison results for each batch size
@@ -308,7 +321,8 @@ def run_single_temperature_experiment(temperature, file_path_template, algorithm
     }
 
 
-def run_multiple_temperature_experiments(temperatures, file_path_template, algorithms, batch_sizes, n_runs, max_sampling=None):
+def run_multiple_temperature_experiments(temperatures, file_path_template, algorithms, batch_sizes, n_runs, 
+                                         max_sampling=None, kmedoids_variant='FPS', kmedoids_top_percentile=0.2):
     """
     Run experiments for multiple temperature conditions.
     
@@ -319,6 +333,8 @@ def run_multiple_temperature_experiments(temperatures, file_path_template, algor
         batch_sizes: List of batch sizes
         n_runs: Number of runs per configuration
         max_sampling: Maximum samplings (None = auto-calculate)
+        kmedoids_variant: K-Medoids variant ('FPS' or 'PAM'), default 'FPS'
+        kmedoids_top_percentile: Top percentile for K-Medoids (0.0-1.0), default 0.2
         
     Returns:
         List of experiment results for each temperature
@@ -328,7 +344,8 @@ def run_multiple_temperature_experiments(temperatures, file_path_template, algor
     for temperature in temperatures:
         try:
             result = run_single_temperature_experiment(
-                temperature, file_path_template, algorithms, batch_sizes, n_runs, max_sampling
+                temperature, file_path_template, algorithms, batch_sizes, n_runs, max_sampling,
+                kmedoids_variant=kmedoids_variant, kmedoids_top_percentile=kmedoids_top_percentile
             )
             all_results.append(result)
         except Exception as e:
