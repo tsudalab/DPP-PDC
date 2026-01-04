@@ -190,20 +190,24 @@ def active_learning_traditional(data, X_std, y_encoded,
                               max_iterations, 
                               batch_size, 
                               initial_labeled_indices, 
-                              phases_nums):
+                              phases_nums,
+                              kmedoids_variant='FPS',
+                              kmedoids_top_percentile=0.2):
     """
-    Traditional active learning method implementation (RS, PDC, etc.).
+    Traditional active learning method implementation (RS, PDC, K-Medoids, etc.).
     
     Args:
         data: Original DataFrame
         X_std: Standardized feature matrix
         y_encoded: Encoded labels
-        algorithm: Algorithm to use ('RS', 'PDC', 'TS')
+        algorithm: Algorithm to use ('RS', 'PDC', 'TS', 'K-Medoids')
         n_initial_sampling: Number of initial samples
         max_iterations: Maximum iterations
         batch_size: Samples per iteration
         initial_labeled_indices: Initial labeled point indices
         phases_nums: Total phases
+        kmedoids_variant: K-Medoids variant ('FPS' or 'PAM'), default 'FPS'
+        kmedoids_top_percentile: Top percentile for K-Medoids candidate selection, default 0.2
         
     Returns:
         phases_discovered_all: List of discovered phases per iteration
@@ -255,13 +259,15 @@ def active_learning_traditional(data, X_std, y_encoded,
             # K-medoids sampling within top uncertain points
             # Step 1: Compute uncertainty scores using PDC
             uncertainty_scores = compute_pdc_scores(model, X_combined[unlabeled_indices])
-            # Step 2: Apply k-medoids on top uncertain points
+            # Step 2: Apply k-medoids variant on top uncertain points
             chosen_indices = kmedoids_uncertainty_sampling(
                 X_unlabeled=X_combined[unlabeled_indices],
                 unlabeled_indices=unlabeled_indices,
                 uncertainty_scores=uncertainty_scores,
                 batch_size=batch_size,
-                top_percentile=0.5
+                top_percentile=kmedoids_top_percentile,
+                variant=kmedoids_variant,
+                random_state=iteration
             )
         elif algorithm in ['PDC', 'TS']:
             # Compute strategy scores based on algorithm
