@@ -26,7 +26,10 @@ Examples:
   dpp-pdc run --config configs/experiment.toml  
 
   # Run full benchmark on complete dataset (reproduces paper results)
-  dpp-pdc run --data datasets/Cu-Mg-Zn_complete.csv -a RS PDC KMedoids-PDC DPP-PDC -b 5 8 10 12 -n 10 --max-sampling 300
+  dpp-pdc run --data datasets/Cu-Mg-Zn_complete.csv -a RS PDC K-Medoids DPP-PDC -b 5 8 10 12 -n 10 --max-sampling 300
+
+  # Run with K-Medoids using PAM variant and 30% top percentile
+  dpp-pdc run --data datasets/Cu-Mg_Zn_850K.csv -a K-Medoids --kmedoids-variant PAM --kmedoids-top-percentile 0.3
 
   # Visualize sampling distribution
   dpp-pdc visualize --data datasets/Cu-Mg_Zn_850K.csv --algorithm DPP-PDC
@@ -106,6 +109,22 @@ Examples:
         type=int,
         default=None,
         help="Maximum total sampling points (default: auto-calculate based on dataset size)",
+    )
+    
+    # K-Medoids specific options
+    kmedoids_group = run_parser.add_argument_group("K-Medoids Options")
+    kmedoids_group.add_argument(
+        "--kmedoids-variant",
+        type=str,
+        choices=["FPS", "PAM"],
+        default="FPS",
+        help="K-Medoids variant: FPS (Farthest Point Sampling) or PAM (original k-medoids). Default: FPS",
+    )
+    kmedoids_group.add_argument(
+        "--kmedoids-top-percentile",
+        type=float,
+        default=0.2,
+        help="Top percentile of uncertain points for K-Medoids candidate selection (0.0-1.0). Default: 0.2",
     )
     
     # Output options
@@ -206,6 +225,9 @@ def run_experiments(args):
         config_dict = load_config(args.config)
         config = ExperimentConfig.from_dict(config_dict)
         print(f"Loaded configuration from: {args.config}")
+        # Use defaults for K-Medoids if not in config
+        kmedoids_variant = config_dict.get('kmedoids_variant', 'FPS')
+        kmedoids_top_percentile = config_dict.get('kmedoids_top_percentile', 0.2)
     else:
         # Build config from command line arguments
         config = ExperimentConfig()
@@ -214,9 +236,13 @@ def run_experiments(args):
         config.batch_sizes = args.batch_sizes
         config.n_runs = args.n_runs
         config.n_initial_sampling = args.n_initial
-        config.max_sampling=args.max_sampling,
+        config.max_sampling = args.max_sampling
         config.output_dir = args.output_dir
         config.file_path_template = args.data_template
+        
+        # K-Medoids specific parameters
+        kmedoids_variant = args.kmedoids_variant
+        kmedoids_top_percentile = args.kmedoids_top_percentile
         
         # If single data file provided, override template
         if args.data:
@@ -232,6 +258,9 @@ def run_experiments(args):
     print(f"Batch sizes: {config.batch_sizes}")
     print(f"Runs per configuration: {config.n_runs}")
     print(f"Output directory: {config.output_dir}")
+    if 'K-Medoids' in config.algorithms:
+        print(f"K-Medoids variant: {kmedoids_variant}")
+        print(f"K-Medoids top percentile: {kmedoids_top_percentile}")
     print("=" * 60)
     
     # Run experiments
@@ -243,6 +272,8 @@ def run_experiments(args):
             batch_sizes=config.batch_sizes,
             n_runs=config.n_runs,
             max_sampling=args.max_sampling,
+            kmedoids_variant=kmedoids_variant,
+            kmedoids_top_percentile=kmedoids_top_percentile,
         )
         print(f"\nExperiment completed! Results saved to: {result['result_dir']}")
     else:
@@ -253,6 +284,8 @@ def run_experiments(args):
             batch_sizes=config.batch_sizes,
             n_runs=config.n_runs,
             max_sampling=args.max_sampling,
+            kmedoids_variant=kmedoids_variant,
+            kmedoids_top_percentile=kmedoids_top_percentile,
         )
         print("\n" + "=" * 60)
         print("EXPERIMENT SUMMARY")
@@ -328,6 +361,15 @@ mcmc_samples = 1000
 mcmc_tune = 1000
 mcmc_chains = 1
 target_accept = 0.9
+
+[kmedoids]
+# K-Medoids variant: "FPS" (Farthest Point Sampling) or "PAM" (original k-medoids)
+# FPS is recommended for better performance on imbalanced datasets
+variant = "FPS"
+
+# Top percentile of uncertain points for candidate selection (0.0-1.0)
+# Lower values focus on more uncertain points, higher values increase diversity
+top_percentile = 0.2
 '''
     
     output_path = Path(args.output)
@@ -358,3 +400,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+    
