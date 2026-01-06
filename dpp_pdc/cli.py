@@ -117,14 +117,14 @@ Examples:
         "--kmedoids-variant",
         type=str,
         choices=["FPS", "PAM"],
-        default="FPS",
+        default="PAM",
         help="K-Medoids variant: FPS (Farthest Point Sampling) or PAM (original k-medoids). Default: FPS",
     )
     kmedoids_group.add_argument(
         "--kmedoids-top-percentile",
         type=float,
-        default=0.2,
-        help="Top percentile of uncertain points for K-Medoids candidate selection (0.0-1.0). Default: 0.2",
+        default=0.25,
+        help="Top percentile of uncertain points for K-Medoids candidate selection (0.0-1.0). Default: 0.25",
     )
     
     # Output options
