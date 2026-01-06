@@ -191,8 +191,8 @@ def active_learning_traditional(data, X_std, y_encoded,
                               batch_size, 
                               initial_labeled_indices, 
                               phases_nums,
-                              kmedoids_variant='FPS',
-                              kmedoids_top_percentile=0.2):
+                              kmedoids_variant='PAM',
+                              kmedoids_top_percentile=0.025):
     """
     Traditional active learning method implementation (RS, PDC, K-Medoids, etc.).
     
@@ -206,8 +206,8 @@ def active_learning_traditional(data, X_std, y_encoded,
         batch_size: Samples per iteration
         initial_labeled_indices: Initial labeled point indices
         phases_nums: Total phases
-        kmedoids_variant: K-Medoids variant ('FPS' or 'PAM'), default 'FPS'
-        kmedoids_top_percentile: Top percentile for K-Medoids candidate selection, default 0.2
+        kmedoids_variant: K-Medoids variant ('FPS' or 'PAM'), default 'PAM'
+        kmedoids_top_percentile: Top percentile for K-Medoids candidate selection, default 0.025
         
     Returns:
         phases_discovered_all: List of discovered phases per iteration
