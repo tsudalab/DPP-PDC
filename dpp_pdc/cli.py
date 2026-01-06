@@ -118,13 +118,13 @@ Examples:
         type=str,
         choices=["FPS", "PAM"],
         default="PAM",
-        help="K-Medoids variant: FPS (Farthest Point Sampling) or PAM (original k-medoids). Default: FPS",
+        help="K-Medoids variant: FPS (Farthest Point Sampling) or PAM (original k-medoids). Default: PAM",
     )
     kmedoids_group.add_argument(
         "--kmedoids-top-percentile",
         type=float,
-        default=0.25,
-        help="Top percentile of uncertain points for K-Medoids candidate selection (0.0-1.0). Default: 0.25",
+        default=0.025,
+        help="Top percentile of uncertain points for K-Medoids candidate selection (0.0-1.0). Default: 0.025",
     )
     
     # Output options
@@ -226,8 +226,8 @@ def run_experiments(args):
         config = ExperimentConfig.from_dict(config_dict)
         print(f"Loaded configuration from: {args.config}")
         # Use defaults for K-Medoids if not in config
-        kmedoids_variant = config_dict.get('kmedoids_variant', 'FPS')
-        kmedoids_top_percentile = config_dict.get('kmedoids_top_percentile', 0.2)
+        kmedoids_variant = config_dict.get('kmedoids_variant', 'PAM')
+        kmedoids_top_percentile = config_dict.get('kmedoids_top_percentile', 0.025)
     else:
         # Build config from command line arguments
         config = ExperimentConfig()
@@ -365,11 +365,11 @@ target_accept = 0.9
 [kmedoids]
 # K-Medoids variant: "FPS" (Farthest Point Sampling) or "PAM" (original k-medoids)
 # FPS is recommended for better performance on imbalanced datasets
-variant = "FPS"
+variant = "PAM"
 
 # Top percentile of uncertain points for candidate selection (0.0-1.0)
 # Lower values focus on more uncertain points, higher values increase diversity
-top_percentile = 0.2
+top_percentile = 0.025
 '''
     
     output_path = Path(args.output)
