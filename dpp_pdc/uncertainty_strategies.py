@@ -93,8 +93,8 @@ def kmedoids_uncertainty_sampling(
     unlabeled_indices,
     uncertainty_scores,
     batch_size,
-    top_percentile=0.2,
-    variant='FPS',
+    top_percentile=0.025,
+    variant='PAM',
     random_state=0,
 ):
     """
@@ -131,7 +131,7 @@ def _kmedoids_fps(
     unlabeled_indices,
     uncertainty_scores,
     batch_size,
-    top_percentile=0.2,
+    top_percentile=0.025,
     random_state=0,
 ):
     """
@@ -191,7 +191,7 @@ def _kmedoids_pam(
     unlabeled_indices,
     uncertainty_scores,
     batch_size,
-    top_percentile=0.3,
+    top_percentile=0.025,
     random_state=0,
 ):
     """
