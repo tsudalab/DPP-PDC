@@ -129,8 +129,8 @@ Run active learning experiments.
 | `--max-sampling` | - | Maximum total samples | auto |
 | `--output-dir` | `-o` | Output directory | `results` |
 | `--verbose` | `-v` | Enable verbose output | `False` |
-| `--kmedoids-variant` | - | K-Medoids variant: FPS or PAM | `FPS` |
-| `--kmedoids-top-percentile` | - | Top percentile for candidate selection (0.0-1.0) | `0.2` |
+| `--kmedoids-variant` | - | K-Medoids variant: FPS or PAM | `PAM` |
+| `--kmedoids-top-percentile` | - | Top percentile for candidate selection (0.0-1.0) | `0.025` |
 
 ### `dpp-pdc init-config`
 
@@ -274,12 +274,11 @@ prior_sigma = 4.0
 
 [kmedoids]
 # K-Medoids variant: "FPS" (Farthest Point Sampling) or "PAM" (original k-medoids)
-# FPS is recommended for better performance on imbalanced datasets
-variant = "FPS"
+variant = "PAM"
 
 # Top percentile of uncertain points for candidate selection (0.0-1.0)
 # Lower values focus on more uncertain points, higher values increase diversity
-top_percentile = 0.2
+top_percentile = 0.025
 
 # MCMC sampling parameters
 mcmc_samples = 1000
