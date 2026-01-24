@@ -9,7 +9,9 @@ description = "DPP-PDC: Determinantal Point Process for Phase Diagram Constructi
 readme = "README.md"
 license = {text = "MIT"}
 authors = [
-    {name = "Your Name", email = "your.email@example.com"}
+    {name = "Peiheng Zou", email = "lukezou1998@gmail.com"},
+    {name = "Ryo Tamura", email = "TAMURA.Ryo@nims.go.jp"},
+    {name = "Koji Tsuda", email = "tsuda@k.u-tokyo.ac.jp"},
 ]
 keywords = [
     "active-learning",
@@ -40,8 +42,10 @@ dependencies = [
     "seaborn>=0.13.2",
     "shapely>=2.1.0",
     "python-ternary>=1.0.8",
+    "mpltern>=1.0.0",
     "h5py>=3.12.1",
     "joblib>=1.4.2",
+    "tqdm>=4.65.0",
     "tomli>=2.0.1;python_version<'3.11'",
 ]
 
@@ -58,10 +62,10 @@ dev = [
 dpp-pdc = "dpp_pdc.cli:main"
 
 [project.urls]
-Homepage = "https://github.com/yourusername/dpp-pdc"
-Documentation = "https://github.com/yourusername/dpp-pdc#readme"
-Repository = "https://github.com/yourusername/dpp-pdc"
-Issues = "https://github.com/yourusername/dpp-pdc/issues"
+Homepage = "https://github.com/tsudalab/dpp-pdc"
+Documentation = "https://github.com/tsudalab/dpp-pdc#readme"
+Repository = "https://github.com/tsudalab/dpp-pdc"
+Issues = "https://github.com/tsudalab/dpp-pdc/issues"
 
 [tool.setuptools.packages.find]
 where = ["."]
