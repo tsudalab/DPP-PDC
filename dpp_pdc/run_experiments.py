@@ -92,7 +92,7 @@ def run_experiment_with_pymc(file_path, temperature, algorithms, batch_sizes, n_
 
             for run in range(n_runs):
                 # Get pre-generated initial sampling points
-                labeled_indices = initial_samples[(batch_size, run)]
+                labeled_indices = initial_samples[(batch_size, run)].copy()
                 
                 print(f"Run {run+1}/{n_runs}, initial phases discovered: {len(np.unique(y_encoded[labeled_indices]))}")
                 
