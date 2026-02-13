@@ -95,7 +95,7 @@ def active_learning_with_pymc(data, X_std, y_encoded,
         metrics_history: History of classification metrics per iteration
     """
     total_samples = X_std.shape[0]
-    labeled_indices = initial_labeled_indices
+    labeled_indices = initial_labeled_indices.copy()
     
     unlabeled_indices = np.setdiff1d(np.arange(total_samples), labeled_indices)
     y_combined = np.full(total_samples, -1)
@@ -214,7 +214,7 @@ def active_learning_traditional(data, X_std, y_encoded,
         metrics_history: History of classification metrics per iteration
     """
     total_samples = X_std.shape[0]
-    labeled_indices = initial_labeled_indices
+    labeled_indices = initial_labeled_indices.copy()
     
     unlabeled_indices = np.setdiff1d(np.arange(total_samples), labeled_indices)
     y_combined = np.full(total_samples, -1)
