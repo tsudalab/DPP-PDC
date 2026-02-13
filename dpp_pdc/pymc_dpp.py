@@ -153,18 +153,6 @@ def bayesian_dpp_sampling(X_combined, unlabeled_indices, labeled_indices, us_sco
         chosen_indices = np.concatenate([unique_indices, additional_indices])
     
     print(f"Selected {len(chosen_indices)} new sample points")
-    
-    # Save noise variance results
-    plt.figure(figsize=(8, 5))
-    az.plot_posterior(
-        trace, 
-        var_names=['noise_variance'], 
-        kind='hist',
-        figsize=(8, 5)
-    )
-    plt.title('Posterior distribution of noise variance')
-    plt.savefig(f'{algorithm}_noise_variance_posterior.png', dpi=150)
-    plt.close('all')
 
     return chosen_indices, optimal_noise_variance
 
@@ -193,3 +181,4 @@ def compute_dpp_kernel_matrix(X_selected, noise_variance):
     dpp_matrix = np.eye(X_selected.shape[0]) * (1 + 1e-6) + (1 / noise_variance) * K_selected
     
     return dpp_matrix
+
