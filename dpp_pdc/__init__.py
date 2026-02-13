@@ -20,11 +20,11 @@ Python API:
     >>> result = run_single_temperature_experiment("850K", ...)
 
 For more information, see the documentation at:
-https://github.com/yourusername/dpp-pdc
+https://github.com/tsudalab/DPP-PDC
 """
 
 __version__ = "1.0.0"
-__author__ = "Your Name"
+__author__ = "Peiheng Zou, Ryo Tamura, Koji Tsuda"
 
 from dpp_pdc.config import ExperimentConfig
 from dpp_pdc.data_preprocessing import standardize_data, prepare_initial_samples
