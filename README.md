@@ -99,7 +99,7 @@ from dpp_pdc import standardize_data
 from dpp_pdc.run_experiments import run_single_temperature_experiment
 
 # Load and preprocess data
-scaler, X_std, y_encoded = standardize_data("datasets/Cu-Mg_Zn_500K.csv")
+scaler, X_std, y_encoded, data = standardize_data("datasets/Cu-Mg_Zn_500K.csv")
 
 # Run experiment
 results = run_single_temperature_experiment(
